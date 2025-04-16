@@ -9,59 +9,37 @@ constexpr auto bypassedId = "bypassed";
 constexpr auto modulationWaveformId = "modulationWaveform";
 }  // namespace
 
-template <class AudioParameter>
 struct AudioParameterSerialisationTraits {
   static constexpr auto marshallingVersion = std::nullopt;
 
-  template <typename Archive, typename T>
-  static void save(Archive& archive, const T& t) {
+  template <typename Archive>
+  static void save(Archive& archive, const juce::RangedAudioParameter& t) {
     using namespace juce;
 
-    // TODO: Extract length to a named constant (check if necessary)
-    archive(named(t.getName(40).toStdString(), t.get()));
+    archive(named("v", t.getValue()));
   }
 
   template <typename Archive, typename T>
-  static void load(Archive& archive, T& t) {
+  static void load(Archive& archive, juce::RangedAudioParameter& t) {
     using namespace juce;
 
-    auto value = t.get();
-    archive(named(t.getName(40).toStdString(), value));
-    t = value;
+    auto value = 0.f;
+    archive(named("v", value));
+    t.setValueNotifyingHost(value);
   }
 };
 
 template <>
 struct juce::SerialisationTraits<juce::AudioParameterFloat>
-    : public AudioParameterSerialisationTraits<juce::AudioParameterFloat> {};
+    : public AudioParameterSerialisationTraits {};
 
 template <>
 struct juce::SerialisationTraits<juce::AudioParameterBool>
-    : public AudioParameterSerialisationTraits<juce::AudioParameterBool> {};
+    : public AudioParameterSerialisationTraits {};
 
 template <>
-struct juce::SerialisationTraits<juce::AudioParameterChoice> {
-  static constexpr auto marshallingVersion = std::nullopt;
-
-  template <typename Archive, typename T>
-  static void save(Archive& archive, const T& t) {
-    using namespace juce;
-
-    archive(named(t.getName(40).toStdString(), t.getCurrentChoiceName()));
-  }
-
-  template <typename Archive, typename T>
-  static void load(Archive& archive, T& t) {
-    using namespace juce;
-
-    auto value = t.getCurrentChoiceName();
-    archive(named(t.getName(40).toStdString(), value));
-
-    if (const auto index = t.choices.indexOf(value); 0 <= index) {
-      t = index;
-    }
-  }
-};
+struct juce::SerialisationTraits<juce::AudioParameterChoice>
+    : public AudioParameterSerialisationTraits {};
 
 template <>
 struct juce::SerialisationTraits<ws::Parameters> {
