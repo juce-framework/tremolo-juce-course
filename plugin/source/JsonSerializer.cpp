@@ -48,22 +48,29 @@ struct juce::SerialisationTraits<SerializableParameters> {
   }
 };
 
-template <>
-struct juce::SerialisationTraits<juce::AudioParameterFloat> {
+template <class AudioParameter>
+struct AudioParameterSerialisationTraits {
   static constexpr auto marshallingVersion = std::nullopt;
 
   template <typename Archive, typename T>
   static void save(Archive& archive, const T& t) {
+    using namespace juce;
+
     archive(named(t.getName(40).toStdString(), t.get()));
   }
 
   template <typename Archive, typename T>
   static void load(Archive& archive, T& t) {
+    using namespace juce;
+
     auto value = t.get();
     archive(named(t.getName(40).toStdString(), value));
     t = value;
   }
 };
+
+template<>
+struct juce::SerialisationTraits<juce::AudioParameterFloat> : public AudioParameterSerialisationTraits<juce::AudioParameterFloat> {};
 
 template <>
 struct juce::SerialisationTraits<ws::Parameters> {
