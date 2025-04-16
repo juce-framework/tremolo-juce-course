@@ -7,46 +7,7 @@ constexpr auto pluginNameId = "pluginName";
 constexpr auto modulationRateHzId = "modulationRateHz";
 constexpr auto bypassedId = "bypassed";
 constexpr auto modulationWaveformId = "modulationWaveform";
-
-struct SerializableParameters {
-  float rate;
-  bool bypassed;
-  std::string waveform;
-};
-
-// SerializableParameters from(const ws::Parameters& p) {
-//   return {
-//       .rate = p.rate.get(),
-//       .bypassed = p.bypassed.get(),
-//       .waveform = p.waveform.getCurrentChoiceName().toStdString(),
-//   };
-// }
 }  // namespace
-
-template <>
-struct juce::SerialisationTraits<SerializableParameters> {
-  // static constexpr auto marshallingVersion = 1;
-
-  template <typename Archive, typename T>
-  static void serialise(Archive& archive, T& p) {
-    using namespace juce;
-
-    if (archive.getVersion() != 1) {
-      return;
-    }
-
-    std::string pluginName = JucePlugin_Name;
-
-    archive(named(pluginNameId, pluginName));
-
-    if (pluginName != JucePlugin_Name) {
-      return;
-    }
-
-    archive(named(modulationRateHzId, p.rate), named(bypassedId, p.bypassed),
-            named(modulationWaveformId, p.waveform));
-  }
-};
 
 template <class AudioParameter>
 struct AudioParameterSerialisationTraits {
@@ -56,6 +17,7 @@ struct AudioParameterSerialisationTraits {
   static void save(Archive& archive, const T& t) {
     using namespace juce;
 
+    // TODO: Extract length to a named constant (check if necessary)
     archive(named(t.getName(40).toStdString(), t.get()));
   }
 
@@ -155,19 +117,14 @@ void JsonSerializer::deserialize(juce::InputStream& input,
   }
 
   const auto parsedParameters =
-      juce::FromVar::convert<SerializableParameters>(parsedResult);
+      juce::FromVar::convert<Parameters>(parsedResult);
 
   if (!parsedParameters.has_value()) {
     return;
   }
 
-  parameters.rate = parsedParameters->rate;
-  parameters.bypassed = parsedParameters->bypassed;
-
-  const auto index =
-      parameters.waveform.choices.indexOf(parsedParameters->waveform);
-  if (0 <= index) {
-    parameters.waveform = index;
-  }
+  parameters.rate = parsedParameters->rate.get();
+  parameters.bypassed = parsedParameters->bypassed.get();
+  parameters.waveform = parsedParameters->waveform.getIndex();
 }
 }  // namespace ws
