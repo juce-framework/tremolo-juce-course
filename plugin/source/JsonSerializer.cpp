@@ -69,8 +69,13 @@ struct AudioParameterSerialisationTraits {
   }
 };
 
-template<>
-struct juce::SerialisationTraits<juce::AudioParameterFloat> : public AudioParameterSerialisationTraits<juce::AudioParameterFloat> {};
+template <>
+struct juce::SerialisationTraits<juce::AudioParameterFloat>
+    : public AudioParameterSerialisationTraits<juce::AudioParameterFloat> {};
+
+template <>
+struct juce::SerialisationTraits<juce::AudioParameterBool>
+    : public AudioParameterSerialisationTraits<juce::AudioParameterBool> {};
 
 template <>
 struct juce::SerialisationTraits<ws::Parameters> {
@@ -92,7 +97,7 @@ struct juce::SerialisationTraits<ws::Parameters> {
       return;
     }
 
-    archive(named(modulationRateHzId, p.rate));
+    archive(named(modulationRateHzId, p.rate), named(bypassedId, p.bypassed));
   }
 };
 
