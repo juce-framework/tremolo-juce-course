@@ -78,6 +78,30 @@ struct juce::SerialisationTraits<juce::AudioParameterBool>
     : public AudioParameterSerialisationTraits<juce::AudioParameterBool> {};
 
 template <>
+struct juce::SerialisationTraits<juce::AudioParameterChoice> {
+  static constexpr auto marshallingVersion = std::nullopt;
+
+  template <typename Archive, typename T>
+  static void save(Archive& archive, const T& t) {
+    using namespace juce;
+
+    archive(named(t.getName(40).toStdString(), t.getCurrentChoiceName()));
+  }
+
+  template <typename Archive, typename T>
+  static void load(Archive& archive, T& t) {
+    using namespace juce;
+
+    auto value = t.getCurrentChoiceName();
+    archive(named(t.getName(40).toStdString(), value));
+
+    if (const auto index = t.choices.indexOf(value); 0 <= index) {
+      t = index;
+    }
+  }
+};
+
+template <>
 struct juce::SerialisationTraits<ws::Parameters> {
   static constexpr auto marshallingVersion = 1;
 
@@ -97,7 +121,8 @@ struct juce::SerialisationTraits<ws::Parameters> {
       return;
     }
 
-    archive(named(modulationRateHzId, p.rate), named(bypassedId, p.bypassed));
+    archive(named(modulationRateHzId, p.rate), named(bypassedId, p.bypassed),
+            named(modulationWaveformId, p.waveform));
   }
 };
 
