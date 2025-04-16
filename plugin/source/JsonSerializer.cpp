@@ -14,18 +14,18 @@ struct SerializableParameters {
   std::string waveform;
 };
 
-SerializableParameters from(const ws::Parameters& p) {
-  return {
-      .rate = p.rate.get(),
-      .bypassed = p.bypassed.get(),
-      .waveform = p.waveform.getCurrentChoiceName().toStdString(),
-  };
-}
+// SerializableParameters from(const ws::Parameters& p) {
+//   return {
+//       .rate = p.rate.get(),
+//       .bypassed = p.bypassed.get(),
+//       .waveform = p.waveform.getCurrentChoiceName().toStdString(),
+//   };
+// }
 }  // namespace
 
 template <>
 struct juce::SerialisationTraits<SerializableParameters> {
-  static constexpr auto marshallingVersion = 1;
+  // static constexpr auto marshallingVersion = 1;
 
   template <typename Archive, typename T>
   static void serialise(Archive& archive, T& p) {
@@ -48,10 +48,51 @@ struct juce::SerialisationTraits<SerializableParameters> {
   }
 };
 
+template <>
+struct juce::SerialisationTraits<juce::AudioParameterFloat> {
+  static constexpr auto marshallingVersion = std::nullopt;
+
+  template <typename Archive, typename T>
+  static void save(Archive& archive, const T& t) {
+    archive(named(t.getName(40).toStdString(), t.get()));
+  }
+
+  template <typename Archive, typename T>
+  static void load(Archive& archive, T& t) {
+    auto value = t.get();
+    archive(named(t.getName(40).toStdString(), value));
+    t = value;
+  }
+};
+
+template <>
+struct juce::SerialisationTraits<ws::Parameters> {
+  static constexpr auto marshallingVersion = 1;
+
+  template <typename Archive, typename T>
+  static void serialise(Archive& archive, T& p) {
+    using namespace juce;
+
+    if (archive.getVersion() != 1) {
+      return;
+    }
+
+    std::string pluginName = JucePlugin_Name;
+
+    archive(named(pluginNameId, pluginName));
+
+    if (pluginName != JucePlugin_Name) {
+      return;
+    }
+
+    archive(named(modulationRateHzId, p.rate));
+  }
+};
+
 namespace ws {
 void JsonSerializer::serialize(const Parameters& parameters,
                                juce::OutputStream& output) {
-  const auto json = juce::ToVar::convert(from(parameters));
+  const auto json = juce::ToVar::convert(parameters);
 
   if (!json.has_value()) {
     return;
