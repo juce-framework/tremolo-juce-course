@@ -17,3 +17,5 @@ chmod +x $POSTINSTALL_SCRIPT_PATH
 
 pkgbuild --scripts $SCRIPTS_PATH --install-location $DEST_DIR --component $PLUGIN_PATH "$PLUGIN_FILE_NAME.pkg"
 
+rm -r $SCRIPTS_PATH
+
