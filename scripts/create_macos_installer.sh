@@ -13,7 +13,7 @@ POSTINSTALL_SCRIPTS_PATH="$SCRIPTS_PATH/postinstall"
 mkdir -p $POSTINSTALL_SCRIPTS_PATH
 POSTINSTALL_SCRIPT_PATH="$POSTINSTALL_SCRIPTS_PATH/xattr_plugin.sh"
 
-echo "#!/bin/zsh" >> $POSTINSTALL_SCRIPT_PATH
+echo "#!/bin/zsh" > $POSTINSTALL_SCRIPT_PATH
 echo "sudo xattr -cr $DEST_DIR/$PLUGIN_FILE_NAME" >> $POSTINSTALL_SCRIPT_PATH
 
 # pkgbuild --scripts $SCRIPTS_PATH --install-location $DEST_DIR --root $PLUGIN_PATH --component-plist "$PLUGIN_PATH/Contents/Info.plist" "$PLUGIN_FILE_NAME.pkg"
