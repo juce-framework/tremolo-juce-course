@@ -44,11 +44,14 @@ juce::Colour CustomLookAndFeel::getColor(Colors colorName) {
 CustomLookAndFeel::CustomLookAndFeel() {
   setColour(juce::ComboBox::textColourId, getColor(Colors::paleBlue));
   setColour(juce::Label::textColourId, getColor(Colors::paleBlue));
-  setColour(juce::PopupMenu::backgroundColourId, juce::Colour{0xFF153245});
+  const juce::Colour darkBlue{0xFF153245};
+  setColour(juce::PopupMenu::backgroundColourId, darkBlue);
   setColour(juce::PopupMenu::textColourId, getColor(Colors::paleBlue));
   setColour(juce::PopupMenu::highlightedTextColourId, juce::Colour{0xFF0C131E});
   setColour(juce::PopupMenu::highlightedBackgroundColourId,
             getColor(Colors::orange));
+  setColour(juce::BubbleComponent::backgroundColourId, darkBlue);
+  setColour(juce::BubbleComponent::outlineColourId, juce::Colour{0xFF0C0E16});
 
   // used to set the font of the default standalone plugin window
   getDefaultLookAndFeel().setDefaultSansSerifTypeface(

@@ -25,7 +25,7 @@ private:
   juce::ButtonParameterAttachment bypassAttachment;
 
   LfoVisualizer lfoVisualizer;
-  AboutComponent about;
+  MessageOnClick about;
 
   CustomLookAndFeel lookAndFeel;
 

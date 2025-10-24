@@ -46,5 +46,5 @@ END_JUCE_MODULE_DECLARATION
 #include "include/Tremolo/Tremolo.h"
 #include "include/Tremolo/BypassTransitionSmoother.h"
 #include "include/Tremolo/PluginProcessor.h"
-#include "include/Tremolo/AboutComponent.h"
+#include "include/Tremolo/MessageOnClick.h"
 #include "include/Tremolo/PluginEditor.h"
