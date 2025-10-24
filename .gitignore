@@ -15,6 +15,9 @@ done.md
 todo.md
 diff_todo_complete.sh
 
+# Installers
+*.pkg
+
 # Prerequisites
 *.d
 
