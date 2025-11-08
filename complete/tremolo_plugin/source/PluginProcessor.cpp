@@ -108,34 +108,14 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     buffer.clear(channelToClear, 0, buffer.getNumSamples());
   }
 
-  const auto bypassedAndNotTransitioning =
-      parameters.bypassed.get() && !bypassTransitionSmoother.isTransitioning();
-  const auto applySmoothing =
-      bypassedAndNotTransitioning ? ApplySmoothing::no : ApplySmoothing::yes;
-
-  // update the parameters
-  // Skip smoothing if fully bypassed to avoid LFO waveform morphing
-  // when parameters change under bypass ON.
-  // For example, if the LFO waveform is the sine, and the user selects
-  // the triangle under bypass ON, they will see a curved triangle slope
-  // on toggling bypass OFF, which is unexpected.
-  tremolo.setModulationRateHz(parameters.rate, applySmoothing);
+  tremolo.setModulationRateHz(parameters.rate, ApplySmoothing::yes);
   tremolo.setLfoWaveform(
       static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
-      applySmoothing);
+      ApplySmoothing::yes);
 
   bypassTransitionSmoother.setBypass(parameters.bypassed);
-
-  if (bypassedAndNotTransitioning) {
-    // avoid processing if the plugin is fully bypassed
-    return;
-  }
-
   bypassTransitionSmoother.setDryBuffer(buffer);
-
-  // apply tremolo
   tremolo.process(buffer);
-
   bypassTransitionSmoother.mixToWetBuffer(buffer);
 }
 
